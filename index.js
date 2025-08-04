@@ -73,8 +73,8 @@ module.exports = (api, options) => {
   }
   const babelMode = process.env[options.envName] || (process.env.BABEL_ENV && process.env.BABEL_ENV !== 'undefined' && process.env.BABEL_ENV !== 'development' && process.env.BABEL_ENV) || process.env.NODE_ENV || 'development'
   const localFilePath = options.path + '.local'
-  const modeFilePath = options.path + '.' + babelMode
-  const modeLocalFilePath = options.path + '.' + babelMode + '.local'
+  const modeFilePath = options.path + '.' + babelMode?.trim()
+  const modeLocalFilePath = options.path + '.' + babelMode?.trim() + '.local'
 
   if (options.verbose) {
     console.log('dotenvMode', babelMode)
