@@ -71,10 +71,8 @@ module.exports = (api, options) => {
     verbose: false,
     ...options,
   }
-  const babelMode = process.env[options.envName] || (process.env.BABEL_ENV && process.env.BABEL_ENV !== 'undefined' && process.env.BABEL_ENV !== 'development' && process.env.BABEL_ENV) || process.env.NODE_ENV || 'development'
-  const localFilePath = options.path + '.local'
+  const babelMode = process.env[options.envName]
   const modeFilePath = options.path + '.' + babelMode?.trim()
-  const modeLocalFilePath = options.path + '.' + babelMode?.trim() + '.local'
 
   if (options.verbose) {
     console.log('dotenvMode', babelMode)
@@ -85,21 +83,14 @@ module.exports = (api, options) => {
 
   api.cache.using(() => mtime(options.path))
   api.cache.using(() => mtime(modeFilePath))
-  api.cache.using(() => mtime(localFilePath))
-  api.cache.using(() => mtime(modeLocalFilePath))
 
   const dotenvTemporary = undefObjectAssign({}, process.env)
   const parsed = parseDotenvFile(options.path, options.verbose)
-  const localParsed = parseDotenvFile(localFilePath, options.verbose)
   const modeParsed = parseDotenvFile(modeFilePath, options.verbose)
-  const modeLocalParsed = parseDotenvFile(modeLocalFilePath, options.verbose)
-  env = (options.safe) ? safeObjectAssign(undefObjectAssign(undefObjectAssign(undefObjectAssign(parsed, modeParsed), localParsed), modeLocalParsed), dotenvTemporary, ['NODE_ENV', 'BABEL_ENV', options.envName])
-    : undefObjectAssign(undefObjectAssign(undefObjectAssign(undefObjectAssign(parsed, modeParsed), localParsed), modeLocalParsed), dotenvTemporary)
+  env = safeObjectAssign(undefObjectAssign(parsed, modeParsed), dotenvTemporary, ['NODE_ENV', 'BABEL_ENV', options.envName])
 
   api.addExternalDependency(path.resolve(options.path))
   api.addExternalDependency(path.resolve(modeFilePath))
-  api.addExternalDependency(path.resolve(localFilePath))
-  api.addExternalDependency(path.resolve(modeLocalFilePath))
 
   return ({
     name: 'dotenv-import',
